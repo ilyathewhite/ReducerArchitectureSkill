@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reducer Architecture"
+  short_description: "Use for ReducerArchitecture / TRA codebases"
+  default_prompt: "Use $reducer-architecture for any request related to ReducerArchitecture (TRA), or whenever the codebase uses the ReducerArchitecture package."
