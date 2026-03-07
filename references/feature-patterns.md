@@ -52,7 +52,7 @@ Organize the folder around that namespace:
 - Put the store namespace in `<Feature>/<Feature>.swift`.
 - Put the actual UI code for the feature in `<Feature>/<Feature>UI.swift`.
 - Put environment-related helpers and default environment implementations in `<Feature>/<Feature>Env.swift` when the feature needs them. If there are no such helpers, omit the file.
-- When helper views make `<Feature>UI.swift` long, move them into `<Feature>/<Feature>Views.swift` first. If the helper-view code is still large, create `<Feature>/Views/` and split those views into one file per helper view.
+- When helper views make `<Feature>UI.swift` long, move them into `<Feature>/Views/` and split those views into one file per helper view.
 - Add tests under `<Feature>/Tests/`.
 
 ## Store File Shape
@@ -165,7 +165,7 @@ Keep small features simple:
 
 Split helper views once the UI file starts to sprawl:
 
-- Move feature-owned helper views into `<Feature>Views.swift` before `FeatureUI.swift` becomes hard to scan.
+- Move feature-owned helper views into `<Feature>/Views/`, one helper view per file, before `FeatureUI.swift` becomes hard to scan.
 - Keep those helper views in the same namespace, for example:
 
 ```swift
@@ -175,7 +175,6 @@ extension Feature {
 }
 ```
 
-- If `<Feature>Views.swift` would itself get large, create a `Views/` subfolder and put each helper view in its own file, still under `extension Feature`.
 - Prefer namespace-scoped helper views over free-floating file-private view types when the views are part of the feature's public implementation shape.
 
 ## Keep Formatting Out Of ContentView
