@@ -10,6 +10,7 @@ Use `SyncUps/UI` in the `master` branch of [SyncUpsTRA on GitHub](https://github
 - Store File Shape
 - Keep View-Only State in ContentView
 - UI File Shape
+- Split Helper Views Across Files
 - Keep Formatting Out Of ContentView
 - Environment Bridging
 - Implement Features In This Order
@@ -43,6 +44,7 @@ Organize the folder around that namespace:
 
 - Put `Feature.swift`, `FeatureUI.swift`, and usually `FeatureEnv.swift` in the feature folder.
 - Keep helper files in the same feature folder when `Feature.swift` becomes large.
+- Keep helper view files in the same feature folder when `FeatureUI.swift` becomes large, and keep those views under `extension Feature`.
 - Nest subcomponents inside the parent feature folder when the parent owns them conceptually.
 
 ## Canonical File Split
@@ -50,6 +52,7 @@ Organize the folder around that namespace:
 - Put the store namespace in `<Feature>/<Feature>.swift`.
 - Put the actual UI code for the feature in `<Feature>/<Feature>UI.swift`.
 - Put environment-related helpers and default environment implementations in `<Feature>/<Feature>Env.swift` when the feature needs them. If there are no such helpers, omit the file.
+- When helper views make `<Feature>UI.swift` long, move them into `<Feature>/<Feature>Views.swift` first. If the helper-view code is still large, create `<Feature>/Views/` and split those views into one file per helper view.
 - Add tests under `<Feature>/Tests/`.
 
 ## Store File Shape
@@ -153,6 +156,27 @@ Follow these conventions:
 - Build the UI and layout first, then let that UI drive the action design.
 - Translate UI interactions into semantic actions instead of leaking control-specific details into the store.
 - Keep `ContentView` as lean as possible.
+
+## Split Helper Views Across Files
+
+Keep small features simple:
+
+- If `FeatureUI.swift` only needs `ContentView` and a couple of short helper views, keeping them together is fine.
+
+Split helper views once the UI file starts to sprawl:
+
+- Move feature-owned helper views into `<Feature>Views.swift` before `FeatureUI.swift` becomes hard to scan.
+- Keep those helper views in the same namespace, for example:
+
+```swift
+extension Feature {
+    struct SessionDescriptionView: View { ... }
+    struct SessionDetailView: View { ... }
+}
+```
+
+- If `<Feature>Views.swift` would itself get large, create a `Views/` subfolder and put each helper view in its own file, still under `extension Feature`.
+- Prefer namespace-scoped helper views over free-floating file-private view types when the views are part of the feature's public implementation shape.
 
 ## Keep Formatting Out Of ContentView
 

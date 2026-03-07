@@ -19,6 +19,7 @@ Mirror the conventions in the SyncUpsTRA reference app unless the target codebas
 ## Follow These Rules
 
 - Split each screen into `<Feature>.swift` for the `StoreNamespace` and `<Feature>UI.swift` for the actual UI code for the feature. Use `<Feature>Env.swift` for environment-related namespace helpers and default environment implementations when the feature needs them. If it would otherwise be empty, do not create it.
+- When `<Feature>UI.swift` grows because of helper views, move those views into additional files under the same namespace. Start with a shared `<Feature>Views.swift`, and if that file would also get large, create a `Views/` subfolder and put each helper view in its own file there.
 - Treat each feature as one component/namespace containing `ContentView`, `StoreState`, `MutatingAction`, `EffectAction`, `StoreEnvironment`, `PublishedValue`, `reduce`, and `runEffect`, even though the UI and env helpers usually live in separate files.
 - Create stores with `env: nil`, then wire `store.environment` in `.connectOnAppear`. If the default `StoreEnvironment(...)` initializer reads clearly at the call site, prefer writing that initializer inline and referencing helpers from `<Feature>Env.swift` as needed instead of adding a wrapper whose only job is to construct `StoreEnvironment`.
 - Keep only true view-system state in `ContentView`, such as `@FocusState`, `@Environment`, continuations owned by the view, and other transient UI-only values. Everything else should live in `StoreState`.
