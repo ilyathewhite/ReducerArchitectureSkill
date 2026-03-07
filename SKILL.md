@@ -18,9 +18,9 @@ Mirror the conventions in the SyncUpsTRA reference app unless the target codebas
 
 ## Follow These Rules
 
-- Split each screen into `<Feature>.swift` for the `StoreNamespace` and `<Feature>UI.swift` for the actual UI code for the feature. Prefer `<Feature>Env.swift` for environment setup helpers used from `FeatureUI.swift`.
+- Split each screen into `<Feature>.swift` for the `StoreNamespace` and `<Feature>UI.swift` for the actual UI code for the feature. Use `<Feature>Env.swift` for environment-related namespace helpers and default environment implementations when the feature needs them. If it would otherwise be empty, do not create it.
 - Treat each feature as one component/namespace containing `ContentView`, `StoreState`, `MutatingAction`, `EffectAction`, `StoreEnvironment`, `PublishedValue`, `reduce`, and `runEffect`, even though the UI and env helpers usually live in separate files.
-- Create stores with `env: nil`, then wire `store.environment` in `.connectOnAppear`, using helpers from `<Feature>Env.swift` whenever practical.
+- Create stores with `env: nil`, then wire `store.environment` in `.connectOnAppear`. If the default `StoreEnvironment(...)` initializer reads clearly at the call site, prefer writing that initializer inline and referencing helpers from `<Feature>Env.swift` as needed instead of adding a wrapper whose only job is to construct `StoreEnvironment`.
 - Keep only true view-system state in `ContentView`, such as `@FocusState`, `@Environment`, continuations owned by the view, and other transient UI-only values. Everything else should live in `StoreState`.
 - Keep views as lean as possible. Move formatting, derived display text, and state-to-UI conversion logic onto the namespace side instead of embedding it inline in `ContentView`.
 - Keep synchronous state changes in `reduce`.
@@ -31,6 +31,7 @@ Mirror the conventions in the SyncUpsTRA reference app unless the target codebas
 - Manage concurrency through `.asyncAction`, `.asyncActions`, `.asyncActionLatest`, `.asyncActionSequence`, and `.asyncActionSequenceLatest` instead of starting tasks directly from reducer logic.
 - Reducer-initiated async work starts on the `MainActor`. When an effect needs true concurrent work, create it explicitly inside the async body with tools such as `async let` or `withTaskGroup`.
 - Prefer `store.publish(...)` to emit a result and `store.cancel()` for dismissal/cancel paths.
+- Prefer direct function references such as `liveUpdates: Nsp.liveUpdates` when a closure field already matches an existing namespace method. Use forwarding closures only when adapting arguments, capture semantics, or actor isolation.
 - Guard invalid state transitions with `guard`, `assertionFailure()`, and `.none`.
 - Use `store.binding(...)` for simple SwiftUI bindings and explicit `store.send(.mutating(...))` for custom updates.
 
@@ -41,7 +42,7 @@ Mirror the conventions in the SyncUpsTRA reference app unless the target codebas
 3. Add the `StoreState` needed to drive that UI.
 4. Implement `reduce` and `runEffect`, then derive the `StoreEnvironment` surface from the low-level work still missing.
 5. Connect the UI to the store actions and bindings.
-6. Implement the default environment methods and environment setup helpers in `<Feature>Env.swift`, then use them from `FeatureUI.swift`.
+6. Implement environment-related namespace helpers in `<Feature>Env.swift` when needed, then use them from `FeatureUI.swift`. Skip the file if there are no such helpers.
 7. Compare the result against the closest SyncUpsTRA GitHub example and add matching tests.
 
 ## Avoid These Mistakes

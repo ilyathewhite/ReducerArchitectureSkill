@@ -49,7 +49,7 @@ Organize the folder around that namespace:
 
 - Put the store namespace in `<Feature>/<Feature>.swift`.
 - Put the actual UI code for the feature in `<Feature>/<Feature>UI.swift`.
-- Put environment setup helpers and default environment implementations in `<Feature>/<Feature>Env.swift`.
+- Put environment-related helpers and default environment implementations in `<Feature>/<Feature>Env.swift` when the feature needs them. If there are no such helpers, omit the file.
 - Add tests under `<Feature>/Tests/`.
 
 ## Store File Shape
@@ -184,14 +184,15 @@ The goal is for `ContentView` to read like a thin translation layer from store s
 Keep `StoreEnvironment` narrow and feature-specific.
 
 - Pass closures, not `appEnv`, into the store.
-- Keep most environment setup logic in `<Feature>Env.swift` so `FeatureUI.swift` stays lean and the setup remains easy to test.
+- Use `<Feature>Env.swift` for environment-related namespace helpers and default environment implementations. Do not extract a helper whose only job is to restate `StoreEnvironment(...)` with no added value.
 - Let helper functions in `<Feature>Env.swift` take `store` as an additional parameter when that helps pull logic out of `FeatureUI.swift`.
 - Do not let `FeatureEnv.swift` helpers reference `@State`, `@FocusState`, `@Environment`, continuations stored in the view, or any other internal `ContentView` state.
-- Keep any unavoidable view-internal bridging in `FeatureUI.swift`, but push everything else into `FeatureEnv.swift`.
+- Keep any unavoidable view-internal bridging in `FeatureUI.swift`. If the default `StoreEnvironment(...)` initializer is already clear at the call site, build it inline in `.connectOnAppear` and reference helpers from `<Feature>Env.swift` as needed instead of wrapping the initializer.
 - Use `store.run(childStore)` from env helpers when a feature needs to present a child feature and await its result.
 - Bridge alerts, sheets, and confirmation dialogs with `withCheckedThrowingContinuation` from the UI layer.
 - Implement the default environment closures as static methods on the namespace in `FeatureEnv.swift`.
-- Whenever possible, build `store.environment` in `FeatureUI.swift` from helpers defined in `FeatureEnv.swift`.
+- Prefer direct function references such as `someDependency: Nsp.someDependency` when a closure field already matches an existing namespace method. Use forwarding closures only when you need adaptation or captures such as `[weak store]`.
+- Build `store.environment` in `FeatureUI.swift` by referencing helpers defined in `FeatureEnv.swift` when those helpers actually make the code clearer or more reusable.
 - If a wrapper in `FeatureUI.swift` would only repeat an already existing namespace helper, skip the extra layer and reference the `FeatureEnv.swift` helper directly.
 - Keep helper methods in the same namespace extension. Use `FeatureEnv.swift` for helpers that support `StoreEnvironment`, use `Feature.swift` for helpers used directly by `reduce` or `runEffect`, and split helpers into additional files inside the same feature folder if the main file grows too large.
 
@@ -202,7 +203,7 @@ Keep `StoreEnvironment` narrow and feature-specific.
 3. Determine the state needed to support that UI.
 4. Implement `reduce` and `runEffect`, then derive the required `StoreEnvironment`.
 5. Connect `ContentView` to store actions and bindings.
-6. Implement the default environment methods and setup helpers in `FeatureEnv.swift`.
+6. Implement environment-related namespace helpers in `FeatureEnv.swift` when needed.
 
 ## Representative Features
 
