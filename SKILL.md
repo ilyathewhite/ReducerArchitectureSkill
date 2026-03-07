@@ -35,6 +35,8 @@ Mirror the conventions in the SyncUpsTRA reference app unless the target codebas
 - Prefer direct function references such as `liveUpdates: Nsp.liveUpdates` when a closure field already matches an existing namespace method. Use forwarding closures only when adapting arguments, capture semantics, or actor isolation.
 - Guard invalid state transitions with `guard`, `assertionFailure()`, and `.none`.
 - Use `store.binding(...)` for simple SwiftUI bindings and explicit `store.send(.mutating(...))` for custom updates.
+- Treat `bind` as a source-to-target bridge. Most parent/child bindings should flow child -> parent so the parent can react to child state or published values.
+- Parent -> child binding is also supported for simple mirrored input. Prefer an explicit parent reducer effect plus environment closure when the synchronization is really parent-owned coordination, should stay visible in reducer logic, or could create a confusing feedback loop.
 
 ## Workflow
 

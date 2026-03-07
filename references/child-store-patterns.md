@@ -18,6 +18,8 @@ Use child stores when a parent component is made of smaller components that shou
 - Let the parent own child store lifetime and composition.
 - Read child stores in the parent UI with typed computed properties built from `store.child()`.
 - Prefer binding child state or published values back into the parent store instead of reaching into child internals or defaulting to callbacks.
+- Treat `bind` and `bindPublishedValue` as source-to-target helpers. Most parent/child usage is parent <- child observation, but parent -> child binding is also supported for simple mirrored input.
+- Prefer an explicit parent reducer effect plus a parent environment closure when parent-derived input should stay visible in reducer logic, when ownership would be blurry, or when bidirectional updates could create confusing loops.
 - Reflect containment in the folder structure by nesting child feature folders inside the parent feature folder when the relationship is structural.
 
 Useful patterns:
@@ -26,6 +28,8 @@ Useful patterns:
 - Use `store.addChild(...)` when the child is conditional or created later.
 - Use `store.bindPublishedValue(of: childStore) { ... }` when the parent should react to the child's published result.
 - Use `store.bind(to: childStore, on: \.someState) { ... }` when the parent should react to changes in child state.
+- Use `childStore.bind(to: store, on: \.someParentState) { ... }` when a child should mirror simple parent state directly.
+- Use an explicit parent reducer effect plus a parent environment closure when a child needs parent-driven synchronization that should remain explicit in reducer logic, or when two-way updates would be harder to reason about.
 
 Less common but still valid:
 

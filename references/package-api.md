@@ -58,8 +58,10 @@ For parent/child composition, the most useful helpers are:
 
 - `store.addChild(...)` and `store.addChildIfNeeded(...)` to install child stores owned by the parent.
 - `store.removeChild(...)` when a child should be torn down explicitly.
-- `store.bind(to: childStore, on: \.someState) { ... }` to turn child state changes into parent actions.
-- `store.bindPublishedValue(of: childStore) { ... }` to turn child published results into parent actions.
+- `targetStore.bind(to: sourceStore, on: \.someState) { ... }` to turn observed state changes into target actions.
+- `targetStore.bindPublishedValue(of: sourceStore) { ... }` to turn observed published results into target actions.
+
+In parent/child composition, the most common use is the parent observing child state or published values, but parent -> child binding is also supported for simple mirrored input.
 
 Reach for these helpers before collapsing child state into the parent store directly.
 
