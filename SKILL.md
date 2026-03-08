@@ -24,6 +24,7 @@ Mirror the conventions in the SyncUpsTRA reference app unless the target codebas
 - Create stores with `env: nil`, then wire `store.environment` in `.connectOnAppear`. If the default `StoreEnvironment(...)` initializer reads clearly at the call site, prefer writing that initializer inline and referencing helpers from `<Feature>Env.swift` as needed instead of adding a wrapper whose only job is to construct `StoreEnvironment`.
 - Keep only true view-system state in `ContentView`, such as `@FocusState`, `@Environment`, continuations owned by the view, and other transient UI-only values. Everything else should live in `StoreState`.
 - Keep views as lean as possible. Move formatting, derived display text, and state-to-UI conversion logic onto the namespace side instead of embedding it inline in `ContentView`.
+- Prefer reducer-driven effects over observing `store.state` in SwiftUI views for feature coordination.
 - Keep synchronous state changes in `reduce`.
 - Keep dependency calls, async work, alerts, sheets, timers, and persistence in `runEffect`.
 - Use `MutatingAction` only for actions that directly change `StoreState`. If an action mainly starts async work, touches dependencies, presents overlays, coordinates child stores, or otherwise does not directly mutate state, make it an `EffectAction`.
