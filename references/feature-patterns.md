@@ -52,6 +52,7 @@ Organize the folder around that namespace:
 - Put the store namespace in `<Feature>/<Feature>.swift`.
 - Put the actual UI code for the feature in `<Feature>/<Feature>UI.swift`.
 - Put environment-related helpers and default environment implementations in `<Feature>/<Feature>Env.swift` when the feature needs them. If there are no such helpers, omit the file.
+- When `StoreState` construction or helpers make `<Feature>.swift` hard to scan, add `<Feature>/<Feature>State.swift` and move that logic there under `extension Feature.StoreState`. Prefer this file for a large state initializer, derived values, mutating helpers, and state-specific helper methods.
 - When helper views make `<Feature>UI.swift` long, move them into `<Feature>/Views/` and split those views into one file per helper view.
 - Add tests under `<Feature>/Tests/`.
 
@@ -103,6 +104,7 @@ Follow these conventions:
 - Reducer-initiated async work starts on the `MainActor`. When an effect needs true concurrent work, create it explicitly inside the async body with `async let`, `withTaskGroup`, or similar structured-concurrency tools.
 - Keep the mutating/effect split honest. If an action mainly starts async work, touches dependencies, presents overlays, or coordinates child stores, it belongs in `EffectAction`, even if it will later trigger mutating actions.
 - Add mutating helper methods to `StoreState` when they improve readability.
+- When `StoreState` helpers or construction logic become large, move them into `<Feature>State.swift` instead of letting `<Feature>.swift` turn into a catch-all state implementation file.
 
 ## Keep View-Only State in ContentView
 
