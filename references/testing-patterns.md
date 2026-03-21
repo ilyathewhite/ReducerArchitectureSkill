@@ -14,13 +14,9 @@ Resolve any `SyncUps/...` path in this file against the `master` branch of [Sync
 
 Store tests under the component's own `Tests` folder so they are easy to find while editing the feature.
 
-Examples:
+Example: `SyncUps/UI/SyncUpList/Tests/SyncUpListModelTests.swift`.
 
-- `SyncUps/UI/SyncUpList/Tests/SyncUpListModelTests.swift`
-- `SyncUps/UI/SyncUpList/Tests/SyncUpListUserEventTests.swift`
-- `SyncUps/UI/SyncUpList/Tests/SyncUpListOverlayTests.swift`
-
-Keep the tests near the feature they cover instead of collecting all feature tests in one shared top-level test folder.
+Keep tests near the feature they cover instead of collecting all feature tests in one shared top-level test folder.
 
 ## Global Test Suites
 
@@ -84,12 +80,6 @@ extension EventTests.OverlayTests.SyncUpListOverlayTests {
 
 Use model tests to validate that, assuming the UI sends the right actions, the right state changes happen and the right effects fire.
 
-Representative files:
-
-- `SyncUps/UI/SyncUpList/Tests/SyncUpListModelTests.swift`
-- `SyncUps/UI/SyncUpDetails/Tests/SyncUpDetailsModelTests.swift`
-- `SyncUps/UI/RecordMeeting/Tests/RecordMeetingModelTests.swift`
-
 Pattern:
 
 - Create the store with `Feature.store(...)`.
@@ -103,11 +93,6 @@ Pattern:
 
 Use user event tests to validate that `ContentView` wires user interactions to the correct semantic actions.
 
-Representative files:
-
-- `SyncUps/UI/SyncUpList/Tests/SyncUpListUserEventTests.swift`
-- `SyncUps/UI/SyncUpForm/Tests/SyncUpFormUserEventTests.swift`
-
 Pattern:
 
 - Render `store.contentView` inside the same container the real app uses, often `NavigationStack`.
@@ -119,12 +104,6 @@ Pattern:
 ## Overlay Tests
 
 Use overlay tests to validate that sheets and alerts work as expected, and that user actions change state and child stores the right way.
-
-Representative files:
-
-- `SyncUps/UI/SyncUpList/Tests/SyncUpListOverlayTests.swift`
-- `SyncUps/UI/SyncUpDetails/Tests/SyncUpDetailsOverlayTests.swift`
-- `SyncUps/UI/RecordMeeting/Tests/RecordMeetingOverlayTests.swift`
 
 Pattern:
 

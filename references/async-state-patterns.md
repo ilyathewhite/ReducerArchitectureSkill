@@ -2,11 +2,6 @@
 
 Use this file when `StoreState` holds asynchronously loaded values, when the UI is driven by `AsyncTaskValue`, or when effect naming and async state transitions need to follow the TRA conventions.
 
-## Table of Contents
-
-- Model Async State Explicitly
-- Inline AsyncTaskValue Example
-
 ## Model Async State Explicitly
 
 When `StoreState` holds a value received asynchronously:
@@ -150,14 +145,7 @@ extension TranslationResultContainer {
 }
 ```
 
-Why this example matters:
-
-- `translationResultState` tracks the main async load using `AsyncTaskValue<TranslationResult, Error>`.
-- `readingTextState` tracks a second, independent async concern without inventing a custom loading enum.
-- `.translate` is the mutation that marks the state as `.inProgress`, and `.translate(query)` is the effect with the same base name.
-- `runEffect` drives the full async sequence by reading cached data, streaming updates, and finishing through the same `Result`-based mutating action.
-- `didFinishTranslation(Result<Void, Error>)` handles both success and failure in one mutating action.
-- `partialTranslationResult` lets the feature show streamed partial data while the final `AsyncTaskValue` is still in progress.
+This example shows a primary async state, a secondary async state, and partial streamed results without inventing custom loading enums.
 
 UI pattern:
 
@@ -203,9 +191,3 @@ var body: some View {
     }
 }
 ```
-
-Use this exact style when:
-
-- The UI should switch directly over `AsyncTaskValue`.
-- A feature has one primary async state plus one or more secondary async states.
-- Partial streamed data should be visible before the final success state lands.

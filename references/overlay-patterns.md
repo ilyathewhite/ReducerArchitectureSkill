@@ -2,21 +2,11 @@
 
 Use this file when the feature presents sheets or alerts, or when overlay behavior needs reducer and environment coordination.
 
-## Table of Contents
-
-- Sheets
-- Alerts
-
 ## Sheets
 
 Model sheets as part of the feature architecture, not as isolated SwiftUI callbacks.
 
 Use a child store to drive sheet presentation when the sheet is another feature.
-
-Reference example:
-
-- `SyncUps/UI/SyncUpList/SyncUpListUI.swift`
-- `SyncUps/UI/SyncUpList/SyncUpListEnv.swift`
 
 Pattern:
 
@@ -80,16 +70,9 @@ extension SyncUpList {
 }
 ```
 
-Use this pattern when the sheet owns real feature logic and should behave like a nested feature interaction.
-
 ## Alerts
 
 Model alerts as part of the feature architecture and bridge them through typed results.
-
-Reference example:
-
-- `SyncUps/UI/RecordMeeting/RecordMeetingUI.swift`
-- `SyncUps/UI/RecordMeeting/RecordMeeting.swift`
 
 Pattern:
 
@@ -99,6 +82,7 @@ Pattern:
 - Install the environment closure in `.connectOnAppear` with `withCheckedThrowingContinuation`, storing the continuation into that `@State`.
 - Await the environment closure from `runEffect` using `.asyncAction` or `.asyncActionSequence`.
 - Use `.asyncActionSequence` when the alert needs coordination around the wait, such as temporarily suppressing timer updates before the alert and restoring them afterward.
+- When the alert result triggers more feature behavior, route that follow-up back through `send(.mutating(...))` or `send(.effect(...))` instead of chaining more feature logic through the alert environment closure. The alert environment should bridge the UI wait itself; the store should still own the surrounding workflow.
 
 Inline alert example adapted from `RecordMeeting`:
 
@@ -171,7 +155,4 @@ static func runEffect(_ env: StoreEnvironment, _ state: StoreState, _ action: Ef
 }
 ```
 
-Keep the alert semantics in the reducer layer:
-
-- The UI should only map buttons to typed alert results.
-- The reducer should decide what those results mean for state updates, publishing, cancellation, or follow-up effects.
+The UI should only map buttons to typed alert results; the reducer should decide what those results mean for state updates, publishing, cancellation, or follow-up effects.

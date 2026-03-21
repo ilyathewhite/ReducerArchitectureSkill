@@ -2,14 +2,6 @@
 
 Use this file when the feature is composed from subcomponents, owns child stores, or needs a view-owned auxiliary store.
 
-## Table of Contents
-
-- Core Rules
-- Inline Single-Child Example
-- Inline Multi-Child Example
-- View-Owned Auxiliary Store Pattern
-- Compose Larger Features With Child Stores
-
 ## Core Rules
 
 Use child stores when a parent component is made of smaller components that should keep their own state and UI.
@@ -19,22 +11,13 @@ Use child stores when a parent component is made of smaller components that shou
 - Read child stores in the parent UI with typed computed properties built from `store.child()`.
 - Prefer binding child state or published values back into the parent store instead of reaching into child internals or defaulting to callbacks.
 - Treat `bind` and `bindPublishedValue` as source-to-target helpers. Most parent/child usage is parent <- child observation, but parent -> child binding is also supported for simple mirrored input.
+- Use `store.addChildIfNeeded(...)` when a child should exist for the lifetime of the parent, and `store.addChild(...)` when the child is conditional or created later.
 - Prefer an explicit parent reducer effect plus a parent environment closure when parent-derived input should stay visible in reducer logic, when ownership would be blurry, or when bidirectional updates could create confusing loops.
+- A view-owned auxiliary store via `@StateObject` is acceptable when the embedded store is simple and mainly needs to publish a result back to the parent.
+- Use callbacks occasionally only when `publish`, `cancel`, or binding helpers are not a good fit and the callback keeps ownership clearer.
 - Reflect containment in the folder structure by nesting child feature folders inside the parent feature folder when the relationship is structural.
-
-Useful patterns:
-
-- Use `store.addChildIfNeeded(...)` in the parent view initializer when a child should always exist for the lifetime of the parent.
-- Use `store.addChild(...)` when the child is conditional or created later.
-- Use `store.bindPublishedValue(of: childStore) { ... }` when the parent should react to the child's published result.
-- Use `store.bind(to: childStore, on: \.someState) { ... }` when the parent should react to changes in child state.
-- Use `childStore.bind(to: store, on: \.someParentState) { ... }` when a child should mirror simple parent state directly.
-- Use an explicit parent reducer effect plus a parent environment closure when a child needs parent-driven synchronization that should remain explicit in reducer logic, or when two-way updates would be harder to reason about.
-
-Less common but still valid:
-
-- Use a view-owned auxiliary store via `@StateObject` when the embedded store is simple, does not need per-instance dynamic input from the parent initializer, and the parent mainly needs to bind to its published value.
-- Use callbacks occasionally when `publish`, `cancel`, or bind helpers are not a good fit and the callback keeps the feature simpler without blurring store ownership.
+- Use `store.bindPublishedValue(of: childStore) { ... }` and `store.bind(to: childStore, on: \.someState) { ... }` when the parent should react to child outputs or child state.
+- Use `childStore.bind(to: store, on: \.someParentState) { ... }` only for simple mirrored parent -> child input.
 
 ## Inline Single-Child Example
 
@@ -181,12 +164,6 @@ Why this pattern works:
 - The parent coordinates cross-child behavior by binding state changes into parent mutations.
 - Optional child stores let the parent switch layouts or modes without collapsing everything into one huge store.
 
-Use child stores when:
-
-- A child view has enough state or logic to deserve its own reducer.
-- Several parts of the screen can evolve independently.
-- The parent needs to coordinate children while still keeping each child testable and reusable.
-
 ## View-Owned Auxiliary Store Pattern
 
 This simpler pattern is useful when the embedded store can be created directly in the view and does not depend on dynamic input from the parent's initializer.
@@ -217,14 +194,4 @@ extension NativeLanguagePicker: StoreUINamespace {
 
 Prefer parent-owned `store.child()` composition for richer containment, but this pattern is a good fit for simpler helper stores.
 
-## Compose Larger Features With Child Stores
-
-Break a complex component into subcomponents when the parent is becoming hard to reason about.
-
-In that case:
-
-- Let the parent store hold child stores.
-- Let the parent `ContentView` render child content views.
-- Reflect the containment in the folder structure.
-- Subscribe or bind to child store state from the parent only when the parent truly needs to react to child changes.
-- Run parent actions in response to child state changes when that coordination belongs to the parent feature.
+Reach for child stores when a subview deserves its own reducer, several parts of the screen can evolve independently, or the parent needs to coordinate children while keeping them reusable.
