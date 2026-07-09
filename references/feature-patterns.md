@@ -113,8 +113,9 @@ Follow these conventions:
 - Prefer finishing child interactions with `store.publish(...)` or `store.cancel()`.
 - Build form controls with `store.binding(...)` when a simple key-path mapping exists.
 - Model sheets and pushed child stores as `StoreUI<ChildFeature>?` built from `store.child()`.
-- Guard `.onAppear` effect sends behind `store.environment != nil` in previews or render-time setup races.
 - Wire dependencies inside `.connectOnAppear { store.environment = ... }`, preferably by composing helpers from `FeatureEnv.swift`.
+- Use `.connectOnAppear` for first actions that depend on the store being connected. Set `store.environment` first, then send the initial mutating/effect actions in that same closure.
+- Use `.onAppear` only for additional view lifecycle work that cannot be part of the one-time connection. If it sends store actions and the store has an environment, guard those sends with `store.environment != nil` so previews and render-time setup races do not run effects before the store is ready.
 - Prefer reducer-driven effects over observing `store.state` in SwiftUI views when coordinating feature behavior.
 - Translate UI interactions into semantic actions instead of leaking control-specific details into the store.
 

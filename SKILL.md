@@ -20,7 +20,7 @@ Mirror the conventions in the SyncUpsTRA reference app unless the target codebas
 
 - Split features into `<Feature>.swift` for the store namespace and `<Feature>UI.swift` for SwiftUI. Add `<Feature>Env.swift`, `<Feature>State.swift`, and `Views/` only when they make the feature easier to scan.
 - Treat each feature as one namespace providing `ContentView`, `StoreState`, `MutatingAction`, `EffectAction`, `StoreEnvironment`, `PublishedValue`, `reduce`, and `runEffect`.
-- Create stores with `env: nil`, then install `store.environment` in `.connectOnAppear`.
+- Create stores with `env: nil`, then install `store.environment` and trigger first store actions in `.connectOnAppear`.
 - Keep only view-system state in `ContentView`; put feature state, derived values, and coordination state in `StoreState`.
 - Keep synchronous state changes in `reduce` and dependency calls, async work, overlays, timers, and persistence in `runEffect`.
 - Use `MutatingAction` only for direct state changes. Use `EffectAction` for dependency work, async work, overlays, child-store coordination, and other non-mutating triggers.
