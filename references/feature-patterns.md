@@ -27,7 +27,7 @@ Organize the folder around that namespace:
 - Put the SwiftUI code in `<Feature>/<Feature>UI.swift`.
 - Add `<Feature>/<Feature>Env.swift` only when the feature needs environment helpers or default environment implementations.
 - Add `<Feature>/<Feature>State.swift` when state construction or state helpers start crowding `<Feature>.swift`.
-- Move helper views into `<Feature>/Views/`, one view per file, when they start crowding `<Feature>UI.swift`.
+- Move helper views into `<Feature>/<Feature>Views/`, one view per file, when they start crowding `<Feature>UI.swift`.
 - Add tests under `<Feature>/Tests/`, and nest subcomponents inside the parent feature folder when the parent owns them conceptually.
 
 ## Store File Shape
@@ -121,7 +121,7 @@ Follow these conventions:
 
 ## Split Helper Views Across Files
 
-If `FeatureUI.swift` only needs `ContentView` and a couple of short helper views, keeping them together is fine. Once it starts to sprawl, move feature-owned helper views into `<Feature>/Views/`, one view per file, and keep them under `extension Feature` rather than as free-floating file-private types.
+If `FeatureUI.swift` only needs `ContentView` and a couple of short helper views, keeping them together is fine. Once it starts to sprawl, move feature-owned helper views into `<Feature>/<Feature>Views/`, one view per file, and keep them under `extension Feature` rather than as free-floating file-private types.
 
 ## Keep Formatting Out Of ContentView
 
