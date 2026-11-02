@@ -18,10 +18,15 @@ Mirror the conventions in the SyncUpsTRA reference app unless the target codebas
 
 ## Non-Negotiables
 
-- Split features into `<Feature>.swift` for the store namespace and `<Feature>UI.swift` for SwiftUI. Add `<Feature>Env.swift`, `<Feature>State.swift`, and `<Feature>Views/` only when they make the feature easier to scan.
+- Split features into `<Feature>.swift` for the store namespace and `<Feature>UI.swift` for SwiftUI. Add `<Feature>Env.swift` and `<Feature>State.swift` when they make the feature easier to scan.
 - Treat each feature as one namespace providing `ContentView`, `StoreState`, `MutatingAction`, `EffectAction`, `StoreEnvironment`, `PublishedValue`, `reduce`, and `runEffect`.
 - Create stores with `env: nil`, then install `store.environment` and trigger first store actions in `.connectOnAppear`.
 - Keep only view-system state in `ContentView`; put feature state, derived values, and coordination state in `StoreState`.
+- UI event handlers must only trigger semantic store actions, directly or through the store's binding, publish, and cancel helpers. Keep feature decisions, calculations, state mutations, and side effects out of views.
+- Route every user-initiated animation through animated store actions. Views declare transitions and render the resulting state; they must not initiate these animations with `withAnimation` or state-observing animation modifiers.
+- Do not use `.onChange()` in views for logic or animations. Handle reactions through reducers, effects, or store bindings.
+- Compose UI from small, focused `View` types. Extract sections into views instead of growing a large view with computed view properties or UI-building functions.
+- Keep UI files small. Treat a growing `<Feature>UI.swift` as a signal to extract feature-owned views into `<Feature>Views/`, one view per file; moving a large body into helper properties or functions is not sufficient.
 - Keep synchronous state changes in `reduce` and dependency calls, async work, overlays, timers, and persistence in `runEffect`.
 - Use `MutatingAction` only for direct state changes. Use `EffectAction` for dependency work, async work, overlays, child-store coordination, and other non-mutating triggers.
 - Keep workflow coordination visible in store actions and state transitions instead of burying it inside environment closures.
@@ -35,7 +40,7 @@ Mirror the conventions in the SyncUpsTRA reference app unless the target codebas
 3. Implement `reduce` and `runEffect`.
 4. Add the minimal `StoreEnvironment` surface still required by those effects.
 5. Connect bindings, child stores, and environment hookup in the UI.
-6. Compare the result against the closest SyncUpsTRA example and add matching tests.
+6. Check the changed UI against these event, animation, observation, and view-composition rules; compare against the closest SyncUpsTRA example and add matching tests.
 
 ## Avoid
 

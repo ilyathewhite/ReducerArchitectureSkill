@@ -73,7 +73,7 @@ Follow these conventions:
 - Use `.action(.mutating(...), Animation.default)` when you want to animate the complete sequence of synchronous changes, including chained sync effects. Using `.mutating(..., animated: true)` animates only that mutating step.
 - Guard invalid state transitions with `guard`, `assertionFailure()`, and `.none`.
 - When the feature can publish multiple outcomes, make `PublishedValue` an enum. `ResultAction` is a common name, but not a required one.
-- Define as much logic as possible in `reduce` and `runEffect`, leaving only low-level implementation details to `StoreEnvironment`.
+- Keep feature behavior in `reduce` and `runEffect`, leaving only low-level implementation details to `StoreEnvironment`. Views must not decide or coordinate that behavior.
 - Keep workflow coordination explicit in store actions. After awaiting a dependency or overlay in `runEffect`, prefer sending follow-up mutating/effect actions over directly calling another environment closure when that next step is really feature logic. This keeps the workflow visible in reducer code, testable through store actions, and traceable.
 - Manage concurrency by returning store effects instead of starting tasks directly from reducer logic.
 - Reducer-initiated async work starts on the `MainActor`. When an effect needs true concurrent work, create it explicitly inside the async body with `async let`, `withTaskGroup`, or similar structured-concurrency tools.
@@ -108,20 +108,30 @@ extension Feature: StoreUINamespace {
 
 Follow these conventions:
 
-- Send user-driven state changes with `store.send(.mutating(...))`.
-- Start side effects with `store.send(.effect(...))`.
+- UI event handlers only dispatch semantic store actions: use `store.send(.mutating(...))` for state changes and `store.send(.effect(...))` for side effects. Put validation, branching, calculations, and follow-up work in the store rather than in button, gesture, or control callbacks.
+- Reusable presentation views may expose event closures; feature call sites must wire those closures to store actions without adding feature logic.
 - Prefer finishing child interactions with `store.publish(...)` or `store.cancel()`.
 - Build form controls with `store.binding(...)` when a simple key-path mapping exists.
 - Model sheets and pushed child stores as `StoreUI<ChildFeature>?` built from `store.child()`.
 - Wire dependencies inside `.connectOnAppear { store.environment = ... }`, preferably by composing helpers from `FeatureEnv.swift`.
 - Use `.connectOnAppear` for first actions that depend on the store being connected. Set `store.environment` first, then send the initial mutating/effect actions in that same closure.
 - Use `.onAppear` only for additional view lifecycle work that cannot be part of the one-time connection. If it sends store actions and the store has an environment, guard those sends with `store.environment != nil` so previews and render-time setup races do not run effects before the store is ready.
-- Prefer reducer-driven effects over observing `store.state` in SwiftUI views when coordinating feature behavior.
+- Do not use `.onChange()` in views for logic or animations, even when its callback only sends another store action. Return follow-up actions from reducers/effects, or use store bindings for cross-store observation.
 - Translate UI interactions into semantic actions instead of leaking control-specific details into the store.
 
-## Split Helper Views Across Files
+## Animate Through Store Actions
 
-If `FeatureUI.swift` only needs `ContentView` and a couple of short helper views, keeping them together is fine. Once it starts to sprawl, move feature-owned helper views into `<Feature>/<Feature>Views/`, one view per file, and keep them under `extension Feature` rather than as free-floating file-private types.
+Every user-initiated animation must originate from an animated store action. Choose the action animation API described above according to whether the animation covers one mutation or the complete synchronous action sequence. An interaction that should update immediately should still send a store action without animation; this rule does not require animating every interaction.
+
+Views may declare transitions and other rendering details that consume the action's animation transaction. Do not wrap event handlers in `withAnimation`, attach `.animation(..., value:)` to initiate user-driven state animations, or use `.onChange()` to start or coordinate them. Any asynchronous follow-up state change that should animate needs its own animated action.
+
+Keep unavoidable SwiftUI bridges limited to reporting events or typed results back to the store. For example, an animation completion reports a completion action; the store decides whether it is still relevant and what happens next. The typed alert continuation pattern in `overlay-patterns.md` similarly returns a result to an awaiting store effect without making workflow decisions in the view.
+
+## Compose Small Views And Split UI Files
+
+Build screens from small, focused `View` types with clear inputs and event outputs. Extract meaningful sections, rows, and controls into their own views instead of accumulating computed `some View` properties, `@ViewBuilder` functions, or other UI-building methods inside a large `ContentView`. Simple store accessors and typed child-store presentation properties remain wiring, not substitutes for extracting UI sections. Use a child store when the extracted component owns feature behavior; a presentation-only view does not need its own store.
+
+Keep UI files small as well as individual views. If `FeatureUI.swift` only needs `ContentView` and a couple of short helper views, keeping them together is fine. Once the file grows difficult to scan, move feature-owned helper views into `<Feature>/<Feature>Views/`, one view per file, and keep them under `extension Feature` rather than as free-floating file-private types. Treat file growth and multiple UI responsibilities as extraction signals; there is no fixed line-count threshold, and merely moving a large body into same-file properties or functions does not satisfy this rule.
 
 ## Keep Formatting Out Of ContentView
 
